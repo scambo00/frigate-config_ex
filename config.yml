@@ -22,35 +22,39 @@ birdseye:
   quality: 8
   mode: continuous
 
-objects:
-  track:
-    - person
-    - dog
-    - cat
-    - bicycle
-    - car
-    - truck
-    - motorcycle
-
 record:
   enabled: True
   retain:
-    days: 2
+    days: 3
     mode: motion
+  events:
+    pre_capture: 2
+    retain:
+      default: 40
+      mode: active_objects
+
+timestamp_style:
+  position: "tr"
+  effect: solid
 
 snapshots:
   enabled: True
-  timestamp: True
-  bounding_box: True
+  clean_copy: True
+  timestamp: False
   crop: True
+  retain:
+    default: 20
+    objects:
+      person: 30
 
 rtmp:
   enabled: False
 
 ffmpeg:
-  global_args: -hide_banner -loglevel warning
-  hwaccel_args: -hwaccel vaapi -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p
-
+  hwaccel_args: preset-vaapi
+  output_args:
+    record: preset-record-generic-audio-aac
+  
 cameras:
 
   back_door:
@@ -58,25 +62,34 @@ cameras:
     ffmpeg:
       inputs:
         - path: rtsp://admin:TSTCXS@192.168.1.131:554/Streaming/Channels/101
+          input_args: preset-rtsp-restream
           roles:
             - detect
-        - path: rtsp://admin:TSTCXS@192.168.1.131:554/H.264
-          roles:
-            - record
     detect:
       enabled: True # <---- disable detection until you have a working camera feed
       width:   1024 # <---- update for your camera's resolution
       height:  1024 # <---- update for your camera's resolution
-      fps: 5
+      fps: 15
+    objects:
+      track:
+        - person
+        - cat
+        - dog
+    motion:
+      mask:
+        - 89,258,180,137,316,51,567,0,842,125,993,334,107,386,21,470,34,384
+        - 617,260,770,311,729,375,674,437,226,444,232,263
 
   outside_cam:
     enabled: True
     ffmpeg:
       inputs:
         - path: rtsp://admin:G0f!$h1ng@192.168.1.142:554/cam/realmonitor?channel=1&subtype=1
+          input_args: preset-rtsp-restream
           roles: 
             - detect
         - path: rtsp://admin:G0f!$h1ng@192.168.1.142:554/cam/realmonitor?channel=1&subtype=0
+          input_args: preset-rtsp-restream
           roles:
             - rtmp
             - record
@@ -85,15 +98,30 @@ cameras:
       width:   704  # <---- update for your camera's resolution
       height:  480  # <---- update for your camera's resolution
       fps: 5
-  
+    objects:
+      track:
+      - person
+      - dog
+      - cat
+      - bicycle
+      - car
+      - motorcycle
+    motion:
+      mask:
+        - 0,228,149,222,330,167,434,216,638,283,704,201,704,0,0,0
+        - 157,243,149,195,38,203,29,239
+        - 542,173,704,200,704,210,704,312,650,272,647,361,607,339,601,381,564,404,501,411,442,390,411,330,411,178
+
   inside_cam:
     enabled: True
     ffmpeg:
       inputs:
         - path: rtsp://admin:G0f!$h1ng@192.168.1.150:554/cam/realmonitor?channel=1&subtype=1
+          input_args: preset-rtsp-restream
           roles: 
             - detect
         - path: rtsp://admin:G0f!$h1ng@192.168.1.150:554/cam/realmonitor?channel=1&subtype=0
+          input_args: preset-rtsp-restream
           roles:
             - rtmp
             - record
@@ -102,23 +130,40 @@ cameras:
       width:   320  # <---- update for your camera's resolution
       height:  240  # <---- update for your camera's resolution
       fps: 5
+    objects:
+      track:
+        - person
+        - cat
+        - dog
 
   drive_cam: # <------ Name the camera
     enabled: True
     ffmpeg:
       inputs:
         - path: rtsp://scambo00:G0f1sh1ng@192.168.1.156:88/videoSub
+          input_args: preset-rtsp-restream
           roles:
             - detect
         - path: rtsp://scambo00:G0f1sh1ng@192.168.1.156:88/videoMain
+          input_args: preset-rtsp-restream
           roles:
             - record
-    objects:
-      filters:
-        car:
-          mask: 0,240,125,240
     detect:
       enabled: True # <---- disable detection until you have a working camera feed
       width: 320 # <---- update for your camera's resolution
       height: 240 # <---- update for your camera's resolution
       fps: 5
+    objects:
+      track:
+      - person
+      - dog
+      - cat
+      - bicycle
+      - car
+      - motorcycle
+      filters:
+        car:
+          mask: 0,240,125,240
+    motion:
+      mask:
+        - 320,240,320,240,264,240,286,194,320,193  
