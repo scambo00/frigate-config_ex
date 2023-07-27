@@ -1,0 +1,124 @@
+mqtt:
+  enabled: True
+  host: 192.168.1.135
+  user: mqttUser
+  password: G0f!$h1ng
+  topic_prefix: frigate
+
+logger:
+  default: info
+  logs:
+    frigate.event: debug
+
+detectors:
+  coral:
+    type: edgetpu
+    device: pci
+  
+birdseye:
+  enabled: True
+  width: 1280
+  height: 720
+  quality: 8
+  mode: continuous
+
+objects:
+  track:
+    - person
+    - dog
+    - cat
+    - bicycle
+    - car
+    - truck
+    - motorcycle
+
+record:
+  enabled: True
+  retain:
+    days: 2
+    mode: motion
+
+snapshots:
+  enabled: True
+  timestamp: True
+  bounding_box: True
+  crop: True
+
+rtmp:
+  enabled: False
+
+ffmpeg:
+  global_args: -hide_banner -loglevel warning
+  hwaccel_args: -hwaccel vaapi -hwaccel_device /dev/dri/renderD128 -hwaccel_output_format yuv420p
+
+cameras:
+
+  back_door:
+    enabled: True
+    ffmpeg:
+      inputs:
+        - path: rtsp://admin:TSTCXS@192.168.1.131:554/Streaming/Channels/101
+          roles:
+            - detect
+        - path: rtsp://admin:TSTCXS@192.168.1.131:554/H.264
+          roles:
+            - record
+    detect:
+      enabled: True # <---- disable detection until you have a working camera feed
+      width:   1024 # <---- update for your camera's resolution
+      height:  1024 # <---- update for your camera's resolution
+      fps: 5
+
+  outside_cam:
+    enabled: True
+    ffmpeg:
+      inputs:
+        - path: rtsp://admin:G0f!$h1ng@192.168.1.142:554/cam/realmonitor?channel=1&subtype=1
+          roles: 
+            - detect
+        - path: rtsp://admin:G0f!$h1ng@192.168.1.142:554/cam/realmonitor?channel=1&subtype=0
+          roles:
+            - rtmp
+            - record
+    detect:
+      enabled: True # <---- disable detection until you have a working camera feed
+      width:   704  # <---- update for your camera's resolution
+      height:  480  # <---- update for your camera's resolution
+      fps: 5
+  
+  inside_cam:
+    enabled: True
+    ffmpeg:
+      inputs:
+        - path: rtsp://admin:G0f!$h1ng@192.168.1.150:554/cam/realmonitor?channel=1&subtype=1
+          roles: 
+            - detect
+        - path: rtsp://admin:G0f!$h1ng@192.168.1.150:554/cam/realmonitor?channel=1&subtype=0
+          roles:
+            - rtmp
+            - record
+    detect:
+      enabled: True # <---- disable detection until you have a working camera feed
+      width:   320  # <---- update for your camera's resolution
+      height:  240  # <---- update for your camera's resolution
+      fps: 5
+
+  drive_cam: # <------ Name the camera
+    enabled: True
+    ffmpeg:
+      inputs:
+        - path: rtsp://scambo00:G0f1sh1ng@192.168.1.156:88/videoSub
+          roles:
+            - detect
+        - path: rtsp://scambo00:G0f1sh1ng@192.168.1.156:88/videoMain
+          roles:
+            - record
+    objects:
+      filters:
+        car:
+          mask: 0,240,125,240
+    detect:
+      enabled: True # <---- disable detection until you have a working camera feed
+      width: 320 # <---- update for your camera's resolution
+      height: 240 # <---- update for your camera's resolution
+      fps: 5
